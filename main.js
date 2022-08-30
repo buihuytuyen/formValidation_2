@@ -1,6 +1,5 @@
-function Validator(formSelector, options) {
-
-    if(!options) options = {};
+function Validator(formSelector) {
+    var _this = this;
 
     function getParent(element, selector) {
         while (element.parentElement){
@@ -80,10 +79,12 @@ function Validator(formSelector, options) {
             var rules = formRules[event.target.name];
             var errorMessage;
 
-            rules.find(function(rule) { 
-                errorMessage = rule(event.target.value)
-                return errorMessage;
-            })
+            for(var rule of rules) {
+                errorMessage = rule(event.target.value);
+                if(errorMessage) {
+                    break;
+                }
+            }
             
             // Nếu có lỗi thì hiển thị message lỗi ra UI
             if(errorMessage){
@@ -111,7 +112,7 @@ function Validator(formSelector, options) {
 
         // Hàm xử lý submit form
         formElement.onsubmit = function(event) {
-            event.preventDefault();
+            event.preventDefault()
             var isValid = true;
             inputs.forEach(function(input){
                 if(!handleValidate({target: input,})){
@@ -121,7 +122,7 @@ function Validator(formSelector, options) {
 
             // khi không có lỗi thì submit form
             if(isValid){
-                if(typeof options.onSubmit === 'function') {
+                if(typeof _this.onSubmit === 'function') {
 
                     var enableInputs = formElement.querySelectorAll('[name]') 
                     var formValue = Array.from(enableInputs).reduce(function (values, input){ // Convert form NodeList to Array
@@ -146,7 +147,7 @@ function Validator(formSelector, options) {
                     }, {})     
 
                     // Gọi lại hàm onsubmit và trả về kèm giá trị của form
-                    options.onSubmit(formValue);
+                    _this.onSubmit(formValue);
                 } else {
                     formElement.submit();
                 }
